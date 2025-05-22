@@ -92,3 +92,32 @@ class Student(Person):
 
     def change_address(self, address):
         self.address = address
+
+class UG(Student):
+    number_of_ug = 0
+    
+    def __init__(self, id, pwd, type):
+        UG.number_of_ug += 1
+        self.eaa = ''
+        super().__init__(id, pwd, type)
+    
+    def set_details(self, name, dob, gender, department, phone, year_of_admission, cgpa, hall, address, eaa):
+        self.eaa = eaa
+        return super().set_details(name, dob, gender, department, phone, year_of_admission, cgpa, hall, address)
+    
+    def change_eaa(self, eaa):
+        self.eaa = eaa
+
+class PG(Student):
+    number_of_pg = 0
+
+    def __init__(self, id, pwd, type):
+        self.research_area = ''
+        PG.number_of_pg += 1
+        super().init__(id, pwd, type)
+    
+    def set_details(self, name, dob, gender, department, phone, year_of_admission, cgpa, hall, address, research_area):
+        self.research_area = research_area
+        return super().set_details(name, dob, gender, department, phone, year_of_admission, cgpa, hall, address)
+    
+
