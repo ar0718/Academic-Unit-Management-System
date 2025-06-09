@@ -150,7 +150,7 @@ class UserGUI:
         password = self.password.get()
         user_type = self.user_type.get()
 
-        if self.check_user_exits(user_id):
+        if self.check_user_exists(user_id):
             messagebox.showerror("Registration Failed", "User ID already exits. Choose a different one.")
         elif not self.validate_password(password):
             messagebox.showerror("Registration Failed", '''Invalid Password.\n
@@ -185,7 +185,7 @@ class UserGUI:
             return False
         return True
     
-    def check_user_exits(self, user_id):
+    def check_user_exists(self, user_id):
         with open("user_data.csv", "r", newline="") as file:
             reader = csv.reader(file)
             for row in reader:
@@ -219,3 +219,83 @@ class UserGUI:
                 if row[0] == user_id  and row[1] == password and row[2] == user_type:
                     return True
         return False
+
+    def login_user(self):
+        user_id = self.user_id.get()
+        password =  self.password.get()
+        user_type = self.user_type.get()
+
+        if not self.check_user_exists(user_id):
+            messagebox.showerror("Login Failed", "User not found")
+        else:
+            attempts  = self.failed_login_attempts.get(user_id, 0)
+
+            if(attempts >= 3):
+                self.deactivate_user_account(user_id)
+                messagebox.showinfo("Login Failed", "Account deactivated")
+            elif self.check_credential_match(user_id, password, user_type):
+                self.failed_login_attempts[user_id] = 0
+                messagebox.showinfo("Login successful", "Welcome!")
+                self.open_second_window(user_id)
+            else:
+                self.failed_login_attempts[user_id] = attempts + 1
+                messagebox.showerror("Login Failed", "Incorrect credentials.")
+
+    def deactivate_user_account(self, user_id):
+        with open("user_data.csv", "r+", newline="") as file:
+            lines = list(csv.reader(file))
+            for i, row in enumerate(lines):
+                if row[0] == user_id:
+                    lines[i][3] = -1 
+                    file.seek(0)
+                    writer = csv.writer(file)
+                    writer.writerows(lines)
+    
+    def open_second_window(self, user_id):
+        second_window = tk.Toplevel(self.master)
+        status = self.get_user_status(user_id)
+        user_type = self.user_type
+
+        if user_type == "Teacher":
+            if status == 0:
+                self.create_teacher_profile(second_window, user_id)
+            elif status == 1:
+                self.update_teacher_profile(second_window, user_id)
+        elif user_type == "UG Student":
+            if status == 0:
+                self.create_ug_profile(second_window, user_id)
+            elif status == 1:
+                self.update_ug_profile(second_window, user_id)
+        elif user_type == "PG Student":
+            if status == 0:
+                self.create_pg_profile(second_window, user_id)
+            elif status == 1:
+                self.update_pg_profile(second_window, user_id)
+        else:
+            messagebox.showerror("Error", "Invalid user type")
+        deregister_button = tk.Button(second_window, text = "Deregister", command = lambda: self.deregister_user(user_id, second_window))
+        deregister_button.pack()
+    
+    def deregister_user(self, user_id, window):
+        confirmation = messagebox.askyesno("Deregister User", "Are you sure you want to deregister your account?")
+        if confirmation:
+            with open("user_data.csv", "r+", newline="") as file:
+                lines = list(csv.reader(file))
+                new_lines = [line for line in lines if line[0] != user_id]
+                file.seek(0)
+                file.truncate()
+                writer = csv.write(file)
+                writer.writerows(new_lines)
+            messagebox.showinfo("Deregistration Successful", "User deregistered successfully!")
+            window.destroy()
+        else:
+            messagebox.showinfo("Deregistation Canceled", "Deregistration process canceled" )
+
+    def get_user_status(self, user_id):
+        with open("user_data.csv", "r", newline="") as file:
+            reader = csv.reader(file)
+            for row in reader:
+                if row[0] == user_id:
+                    return int(row[3])
+        return -1
+    
