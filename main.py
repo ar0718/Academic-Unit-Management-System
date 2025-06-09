@@ -121,3 +121,101 @@ class PG(Student):
         return super().set_details(name, dob, gender, department, phone, year_of_admission, cgpa, hall, address)
     
 
+class UserGUI:
+    def __init__(self, master):
+        self.master  = master
+        self.master.title("User System")
+        self.user_id = tk.StringVar()
+        self.password = tk.StringVar()
+        self.user_type = tk.StringVar()
+
+        tk.Label(master, text =  "User ID:").pack()
+        tk.Entry(master, textvariable = self.user_id).pack()
+
+        tk.Label(master, text = "Password:").pack()
+        tk.Entry(master, textvariable = self.password, show  = "*").pack()
+
+        tk.Label(master, text = "User Type:").pack()
+        tk.Entry(master, textvariable = self.user_type).pack()
+        user_types = ["Teacher", "UG Student", "PG Student"]
+        for user_type in user_types:
+            ttk.Radiobutton(master, text = user_type, variable = self.user_type, value = user_type).pack()
+
+        tk.Button(master, text = "Register", command = self.register_user).pack()
+        tk.Button(master, text = "Login", command = self.login_user).pack()
+        self.failed_login_attempts = {}
+
+    def register_user(self):
+        user_id = self.user_id.get()
+        password = self.password.get()
+        user_type = self.user_type.get()
+
+        if self.check_user_exits(user_id):
+            messagebox.showerror("Registration Failed", "User ID already exits. Choose a different one.")
+        elif not self.validate_password(password):
+            messagebox.showerror("Registration Failed", '''Invalid Password.\n
+                                 a) It should be within 8 - 12 characters long.\n
+                                 b) It should contain at least one upper case, one digit and one lower case.\n
+                                 c) It should contain at least one or more special characters from the list [! @ # % & *]\n
+                                 d) No blank space will be allowed.''')
+        else:
+            if user_type == "Techer":
+                new_user = Teacher(user_id, password, user_type)
+            elif user_type == "UG Student":
+                new_user = UG(user_id, password, user_type)
+            elif user_type == "PG student":
+                new_user = PG(user_id, password, user_type)
+            else:
+                messagebox.showerror("Registration Failed", "Invalid User type")
+            self.save_user_to_csv(new_user)
+            messagebox.showinfo("Registration Successful", "User registered successfully!")
+    
+    def validate_password(self, password):
+        if not (8 <= len(password) <= 12):
+            return False
+        if not re.search(r'[A-z]', password):
+            return False
+        if not re.search(r'[a-z]', password):
+            return False
+        if not re.search(r'\d', password):
+            return False
+        if not re.search(r'[!@#$%&*]', password):
+            return False
+        if ' ' in password:
+            return False
+        return True
+    
+    def check_user_exits(self, user_id):
+        with open("user_data.csv", "r", newline="") as file:
+            reader = csv.reader(file)
+            for row in reader:
+                if row[0] == user_id:
+                    return True
+        return False
+    
+    def save_user_to_csv(self, user):
+        with open("user_data.csv", "a", newline="") as file:
+            writer = csv.writer(file)
+            if user.type == 'Teacher':
+                writer.writerow([user.user_id, user.password, user.type, user.status, user.name, user.dob,
+                                  user.gender, user.department, user.phone, user.warden, user.post])
+            elif user.type == "UG Student":
+                writer.writerow([user.user_id, user.password, user.type, user.status, 
+                                user.name, user.dob, user.gender, user.department, user.phone,
+                                user.year_of_admission, user.cgpa, user.hall, user.address.house,
+                                user.address.city, user.address.pincode, user.address.state, user.EAA])
+            elif user.type == "PG Student":
+                writer.writerow([user.user_id, user.password, user.type, user.status, 
+                                user.name, user.dob, user.gender, user.department, user.phone,
+                                user.year_of_admission, user.cgpa, user.hall, user.address.house,
+                                user.address.city, user.address.pincode, user.address.state, user.research_area])
+            else:
+                messagebox.showerror("Error while Saving", "Invalid User type")
+   
+    def check_credential_match(self, user_id, password, user_type):
+        with open("user_data.csv", "r", newline="") as file:
+            reader = csv.reader(file)
+            for row in reader:
+                if row[0] == user_id  and row[1] == password and row[2] == user_type:
+                    return True
+        return False
