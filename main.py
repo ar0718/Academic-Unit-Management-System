@@ -50,7 +50,7 @@ class Teacher(Person):
     number_of_teachers = 0
 
     def __init__(self, id, pwd, type):
-        self.wardern = ''
+        self.warden = ''
         self.post = ''
         Teacher.number_of_teachers += 1
         super().__init__(id, pwd, type)
@@ -114,14 +114,14 @@ class PG(Student):
     def __init__(self, id, pwd, type):
         self.research_area = ''
         PG.number_of_pg += 1
-        super().init__(id, pwd, type)
+        super().__init__(id, pwd, type)
     
     def set_details(self, name, dob, gender, department, phone, year_of_admission, cgpa, hall, address, research_area):
         self.research_area = research_area
         return super().set_details(name, dob, gender, department, phone, year_of_admission, cgpa, hall, address)
     
 
-class UserGUI:
+class User:
     def __init__(self, master):
         self.master  = master
         self.master.title("User System")
@@ -136,7 +136,7 @@ class UserGUI:
         tk.Entry(master, textvariable = self.password, show  = "*").pack()
 
         tk.Label(master, text = "User Type:").pack()
-        tk.Entry(master, textvariable = self.user_type).pack()
+        # tk.Entry(master, textvariable = self.user_type).pack()
         user_types = ["Teacher", "UG Student", "PG Student"]
         for user_type in user_types:
             ttk.Radiobutton(master, text = user_type, variable = self.user_type, value = user_type).pack()
@@ -159,11 +159,11 @@ class UserGUI:
                                  c) It should contain at least one or more special characters from the list [! @ # % & *]\n
                                  d) No blank space will be allowed.''')
         else:
-            if user_type == "Techer":
+            if user_type == "Teacher":
                 new_user = Teacher(user_id, password, user_type)
             elif user_type == "UG Student":
                 new_user = UG(user_id, password, user_type)
-            elif user_type == "PG student":
+            elif user_type == "PG Student":
                 new_user = PG(user_id, password, user_type)
             else:
                 messagebox.showerror("Registration Failed", "Invalid User type")
@@ -203,7 +203,7 @@ class UserGUI:
                 writer.writerow([user.user_id, user.password, user.type, user.status, 
                                 user.name, user.dob, user.gender, user.department, user.phone,
                                 user.year_of_admission, user.cgpa, user.hall, user.address.house,
-                                user.address.city, user.address.pincode, user.address.state, user.EAA])
+                                user.address.city, user.address.pincode, user.address.state, user.eaa])
             elif user.type == "PG Student":
                 writer.writerow([user.user_id, user.password, user.type, user.status, 
                                 user.name, user.dob, user.gender, user.department, user.phone,
@@ -254,7 +254,7 @@ class UserGUI:
     def open_second_window(self, user_id):
         second_window = tk.Toplevel(self.master)
         status = self.get_user_status(user_id)
-        user_type = self.user_type
+        user_type = self.user_type.get()
 
         if user_type == "Teacher":
             if status == 0:
@@ -299,3 +299,259 @@ class UserGUI:
                     return int(row[3])
         return -1
     
+    def create_teacher_profile(self, window, user_id):
+        tk.Label(window, text = "Teacher Profile Creation").pack()
+        tk.Label(window, text = "Name:").pack()
+        name_entry = tk.Entry(window)
+        name_entry.pack()
+        tk.Label(window, text = "DOB:").pack()
+        dob_entry = tk.Entry(window)
+        dob_entry.pack()
+        tk.Label(window, text = "Gender:").pack()
+        gender_entry = tk.Entry(window)
+        gender_entry.pack()
+        tk.Label(window, text = "Department:").pack()
+        department_entry = tk.Entry(window)
+        department_entry.pack()
+        tk.Label(window, text = "Phone:").pack()
+        phone_entry = tk.Entry(window)
+        phone_entry.pack()
+        tk.Label(window, text = "Warden:").pack()
+        warden_entry = tk.Entry(window)
+        warden_entry.pack()
+        tk.Label(window, text = "Post:").pack()
+        post_entry = tk.Entry(window)
+        post_entry.pack()
+        tk.Button(window, text = "Save", command = lambda: self.save_teacher_profile(window, user_id, name_entry.get(), dob_entry.get(), gender_entry.get(), department_entry.get(), phone_entry.get(), warden_entry.get(), post_entry.get())).pack()
+    
+    def update_teacher_profile(self, window, user_id):
+        tk.Label(window, text = "Update Teacher Profile").pack()
+        tk.Label(window, text = "Password:").pack()
+        password_entry = tk.Entry(window, show="*")
+        password_entry.pack()
+        tk.Label(window, text = "Name:").pack()
+        name_entry = tk.Entry(window)
+        name_entry.pack()
+        tk.Label(window, text = "Phone:").pack()
+        phone_entry = tk.Entry(window)
+        phone_entry.pack()
+
+        tk.Button(window, text = "Update", command = lambda: self.update_teacher_details(window, user_id, password_entry.get(), name_entry.get(), phone_entry.get())).pack()
+    def save_teacher_profile(self, window, user_id, name, dob, gender, department, phone, warden, post):
+        with open("user_data.csv", "r+", newline="") as file:
+            lines = list(csv.reader(file))
+            for i, row in enumerate(lines):
+                if row[0] == user_id:
+                    lines[i][3] = 1
+                    lines[i][4] = name
+                    lines[i][5] = dob
+                    lines[i][6] = gender
+                    lines[i][7] = department
+                    lines[i][8] = phone
+                    lines[i][9] = warden
+                    lines[i][10] = post
+                    file.seek(0)
+                    writer = csv.writer(file)
+                    writer.writerows(lines)
+        messagebox.showinfo("Profile Creation Successful", "Teacher profile created successfully!")
+        window.destroy()
+    def update_teacher_details(self, window, user_id, password, name, phone):
+        with open("user_data.csv", "r+", newline="") as file:
+            lines = list(csv.reader(file))
+            for i, row in enumerate(lines):
+                if row[0] == user_id:
+                    lines[i][1] = password
+                    lines[i][4] = name
+                    lines[i][8] = phone
+                    file.seek(0)
+                    writer = csv.writer(file)
+                    writer.writerows(lines)
+        messagebox.showinfo("Profile Update Successful", "Teacher profile updated successfully!")
+        window.destroy()
+
+    def create_ug_profile(self, window, user_id):
+        tk.Label(window, text = "UG Student Profile Creation").pack()
+        tk.Label(window, text = "Name:").pack()
+        name_entry = tk.Entry(window)
+        name_entry.pack()
+        tk.Label(window, text = "DOB:").pack()
+        dob_entry = tk.Entry(window)
+        dob_entry.pack()
+        tk.Label(window, text = "Gender:").pack()
+        gender_entry = tk.Entry(window)
+        gender_entry.pack()
+        tk.Label(window, text = "Department:").pack()
+        department_entry = tk.Entry(window)
+        department_entry.pack()
+        tk.Label(window, text = "Phone:").pack()
+        phone_entry = tk.Entry(window)
+        phone_entry.pack()
+        tk.Label(window, text = "Year of Admission:").pack()
+        year_entry = tk.Entry(window)
+        year_entry.pack()
+        tk.Label(window, text = "CGPA:").pack()
+        cgpa_entry = tk.Entry(window)
+        cgpa_entry.pack()
+        tk.Label(window, text = "Hall:").pack()
+        hall_entry = tk.Entry(window)
+        hall_entry.pack()
+        tk.Label(window, text = "Address:").pack()
+        address_entry = tk.Entry(window)
+        address_entry.pack()
+        tk.Label(window, text = "EAA:").pack()
+        eaa_entry = tk.Entry(window)
+        eaa_entry.pack()
+        tk.Button(window, text = "Save", command = lambda: self.save_ug_profile(window, user_id, name_entry.get(), dob_entry.get(), gender_entry.get(), department_entry.get(), phone_entry.get(), year_entry.get(), cgpa_entry.get(), hall_entry.get(), address_entry.get(), eaa_entry.get())).pack()
+   
+    def update_ug_profile(self, window, user_id):
+        tk.Label(window, text = "Update UG Profile").pack()
+        tk.Label(window, text = "Name:").pack()
+        name_entry = tk.Entry(window)
+        name_entry.pack()
+        tk.Label(window, text = "Phone:").pack()
+        phone_entry = tk.Entry(window)
+        phone_entry.pack()
+        tk.Label(window, text = "CGPA:").pack()
+        cgpa_entry = tk.Entry(window)
+        cgpa_entry.pack()
+        tk.Label(window, text = "Hall:").pack()
+        hall_entry = tk.Entry(window)
+        hall_entry.pack()
+        tk.Label(window, text = "Address:").pack()
+        address_entry = tk.Entry(window)
+        address_entry.pack()
+        tk.Button(window, text = "Update", command = lambda: self.update_ug_details(window, user_id, name_entry.get(), phone_entry.get(), cgpa_entry.get(), hall_entry.get(), address_entry.get())).pack()
+
+    def save_ug_profile(self, window, user_id, name, dob, gender, department, phone, year, cgpa, hall, address , eaa):
+        with open("user_data.csv", "r+", newline="") as file:
+            lines = list(csv.reader(file))
+            for i, row in enumerate(lines):
+                if row[0] == user_id:
+                    lines[i][3] = 1
+                    lines[i][4] = name
+                    lines[i][5] = dob
+                    lines[i][6] = gender
+                    lines[i][7] = department
+                    lines[i][8] = phone
+                    lines[i][11] = year
+                    lines[i][12] = cgpa
+                    lines[i][13] = hall
+                    lines[i][14] = address
+                    lines[i][15] = eaa
+                    file.seek(0)
+                    writer = csv.writer(file)
+                    writer.writerows(lines)
+        messagebox.showinfo("Profile Creation Successful", "UG student profile created successfully!")
+        window.destroy()
+    
+    def update_ug_details(self, window, user_id, name, phone, cgpa, hall, address):
+        with open("user_data.csv", "r+", newline="") as file:
+            lines = list(csv.reader(file))
+            for i, row in enumerate(lines):
+                if row[0] == user_id:
+                    lines[i][4] = name
+                    lines[i][8] = phone
+                    lines[i][12] = cgpa
+                    lines[i][13] = hall
+                    lines[i][14] = address
+                    file.seek(0)
+                    writer = csv.writer(file)
+                    writer.writerows(lines)
+        messagebox.showinfo("Profile Update Successful", "UG student profile updated successfully!")
+        window.destroy()
+    
+    def create_pg_profile(self, window, user_id):
+        tk.Label(window, text = "PG Student Profile Creation").pack()
+        tk.Label(window, text = "Name:").pack()
+        name_entry = tk.Entry(window)
+        name_entry.pack()
+        tk.Label(window, text = "DOB:").pack()
+        dob_entry = tk.Entry(window)
+        dob_entry.pack()
+        tk.Label(window, text = "Gender:").pack()
+        gender_entry = tk.Entry(window)
+        gender_entry.pack()
+        tk.Label(window, text = "Department:").pack()
+        department_entry = tk.Entry(window)
+        department_entry.pack()
+        tk.Label(window, text = "Phone:").pack()
+        phone_entry = tk.Entry(window)
+        phone_entry.pack()
+        tk.Label(window, text = "Year of Admission:").pack()
+        year_entry = tk.Entry(window)
+        year_entry.pack()
+        tk.Label(window, text = "CGPA:").pack()
+        cgpa_entry = tk.Entry(window)
+        cgpa_entry.pack()
+        tk.Label(window, text = "Hall:").pack()
+        hall_entry = tk.Entry(window)
+        hall_entry.pack()
+        tk.Label(window, text = "Address:").pack()
+        address_entry = tk.Entry(window)
+        address_entry.pack()
+        tk.Label(window, text = "Research Area:").pack()
+        research_area_entry = tk.Entry(window)
+        research_area_entry.pack()
+        tk.Button(window, text = "Save", command = lambda: self.save_pg_profile(window, user_id, name_entry.get(), dob_entry.get(), gender_entry.get(), department_entry.get(), phone_entry.get(), year_entry.get(), cgpa_entry.get(), hall_entry.get(), address_entry.get(), research_area_entry.get())).pack()
+    def update_pg_profile(self, window, user_id):
+        tk.Label(window, text = "Update PG Profile").pack()
+        tk.Label(window, text = "Name:").pack()
+        name_entry = tk.Entry(window)
+        name_entry.pack()
+        tk.Label(window, text = "Phone:").pack()
+        phone_entry = tk.Entry(window)
+        phone_entry.pack()
+        tk.Label(window, text = "CGPA:").pack()
+        cgpa_entry = tk.Entry(window)
+        cgpa_entry.pack()
+        tk.Label(window, text = "Hall:").pack()
+        hall_entry = tk.Entry(window)
+        hall_entry.pack()
+        tk.Label(window, text = "Address:").pack()
+        address_entry = tk.Entry(window)
+        address_entry.pack()
+        tk.Label(window, text = "Research Area:").pack()
+        research_area_entry = tk.Entry(window)
+        research_area_entry.pack()
+        tk.Button(window, text = "Update", command = lambda: self.update_pg_details(window, user_id, name_entry.get(), phone_entry.get(), cgpa_entry.get(), hall_entry.get(), address_entry.get(), research_area_entry.get())).pack()
+    def save_pg_profile(self, window, user_id, name, dob, gender, department, phone, year, cgpa, hall, address, research_area):
+        with open("user_data.csv", "r+", newline="") as file:
+            lines = list(csv.reader(file))
+            for i, row in enumerate(lines):
+                if row[0] == user_id:
+                    lines[i][3] = 1
+                    lines[i][4] = name
+                    lines[i][5] = dob
+                    lines[i][6] = gender
+                    lines[i][7] = department
+                    lines[i][8] = phone
+                    lines[i][11] = year
+                    lines[i][12] = cgpa
+                    lines[i][13] = hall
+                    lines[i][14] = address
+                    lines[i][16] = research_area
+                    file.seek(0)
+                    writer = csv.writer(file)
+                    writer.writerows(lines)
+        messagebox.showinfo("Profile Creation Successful", "PG student profile created successfully!")
+        window.destroy()
+    def update_pg_details(self, window, user_id, name, phone, cgpa, hall, address, research_area):
+        with open("user_data.csv", "r+", newline="") as file:
+            lines = list(csv.reader(file))
+            for i, row in enumerate(lines):
+                if row[0] == user_id:
+                    lines[i][4] = name
+                    lines[i][8] = phone
+                    lines[i][12] = cgpa
+                    lines[i][13] = hall
+                    lines[i][14] = address
+                    lines[i][16] = research_area
+                    file.seek(0)
+                    writer = csv.writer(file)
+                    writer.writerows(lines)
+        messagebox.showinfo("Profile Update Successful", "PG student profile updated successfully!")
+        window.destroy()
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = User(root)
+    root.mainloop()
