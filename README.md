@@ -1,39 +1,43 @@
-## 🧑‍💼  User Management System
 
-This project is a **Tkinter-based GUI application** built with Python. It manages user data, including personal details and addresses, and stores information using CSV files.
+---
 
-### 🚀 Features
+# 🎓 Academic Unit Management System
 
-* 🔐 **User Authentication**: Supports login with user ID and password.
-* 👤 **User Management**:
+*A self-initiated project that offers a secure and intuitive system for managing academic user data using a GUI interface built with Python.*
 
-  * Tracks number of users using a class variable
-  * Allows setting and updating of personal details: name, phone, DOB, gender, etc.
-* 🏠 **Address Handling**: Stores and manages address information like house number, city, pincode, and state.
-* 💾 **Persistent Storage**: Reads and writes user data to a CSV file.
-* 🖥️ **GUI Interface**: Built with Tkinter and ttk for modern widgets and interaction.
+---
 
-### 📁 Project Structure
+## 🚀 Overview
 
-* `Address` class:
+The **Academic Unit Management System** is a desktop application that enables user registration, authentication, and management of academic details. Built with **Tkinter**, it leverages **object-oriented design** and uses **CSV files** for persistent data storage.
 
-  * Holds address-related information.
-* `Person` class:
+---
 
-  * Manages user credentials and personal details.
-  * Maintains a count of total users (`number_of_people`).
-  * Includes methods to update user info.
+## 🧩 Features
 
-### 🔧 Technologies Used
+* 🔐 **Secure Registration System**
+  Designed with robust password validation and clear, user-friendly error messages for secure account creation.
+
+* 🔓 **Authentication Mechanism**
+  Allows up to **three failed login attempts** before temporarily deactivating the account, helping to prevent unauthorized access.
+
+* 🖥️ **Interactive GUI**
+  Developed with **Tkinter** and `ttk` widgets to ensure an intuitive and responsive user interface across all features.
+
+* 👨‍👩‍👧 **Object-Oriented Design**
+  Uses structured classes like `Person` and `Address` to encapsulate user data and promote modular design.
+
+* 💾 **Persistent Data Management**
+  User information is saved and accessed through **CSV files**, ensuring simplicity and portability without requiring a database.
+
+---
+
+## 🛠 Technologies Used
 
 * Python 3.x
 * Tkinter (`tk`, `ttk`, `messagebox`)
-* CSV for data storage
-* Regular expressions for validation
-
-### ✅ Requirements
-
-* Python 3.6+
-* Tkinter (pre-installed with most Python distributions)
+* CSV module
+* Regular expressions for input validation
 
 ---
+
